@@ -8,38 +8,25 @@ class DetailsGenerator:
 
     def __init__(self, repository, output_folder):
         self.repository = repository
-        self.output_folder = Path(output_folder) / "items"
+        self.output_folder = Path(output_folder)
 
     def generate(self):
 
-        self.output_folder.mkdir(
-            parents=True,
-            exist_ok=True
+        items_folder = self.output_folder / "items"
+        items_folder.mkdir(parents=True, exist_ok=True)
+
+        resources = (
+            self.repository.agents
+            + self.repository.prompts
+            + self.repository.skills
         )
 
-        for agent in self.repository.agents:
-            self.__generate_item_page(
-                item=agent,
-                item_type="Agent"
-            )
+        for resource in resources:
+            self.__generate_item_page(resource, items_folder)
 
-        for prompt in self.repository.prompts:
-            self.__generate_item_page(
-                item=prompt,
-                item_type="Prompt"
-            )
+        print(f"Generated {len(resources)} detail pages.")
 
-        for skill in self.repository.skills:
-            self.__generate_item_page(
-                item=skill,
-                item_type="Skill"
-            )
-
-    def __generate_item_page(
-        self,
-        item,
-        item_type
-    ):
+    def __generate_item_page(self, item, output_folder):
 
         body = []
 
@@ -48,245 +35,166 @@ class DetailsGenerator:
                 [
                     ("Home", "../index.html"),
                     (
-                        item.category or "General",
-                        f"../domains/{self.__slug(item.category)}.html"
+                        item.category,
+                        f"../domains/{self.__slug(item.category)}.html",
                     ),
-                    (item.name, "#")
+                    (item.name, None),
                 ]
             )
         )
 
         body.append(
-            PageGenerator.hero(
-                item.name,
-                item.description
-                or "No description available."
-            )
+            f"""
+            <section class="hero">
+                <h1>{item.name}</h1>
+                <p>{item.description}</p>
+            </section>
+            """
         )
 
-        body.append(
-            self.__overview_section(
-                item,
-                item_type
-            )
-        )
+        body.append(self.__overview_section(item))
 
         body.append(
             self.__section(
                 "Objective",
-                getattr(
-                    item,
-                    "objective",
-                    ""
-                )
+                item.sections.get("Objective", "")
             )
         )
 
         body.append(
             self.__section(
                 "Usage",
-                getattr(
-                    item,
-                    "usage",
-                    ""
-                )
+                item.sections.get("Usage", "")
             )
         )
 
         body.append(
             self.__section(
                 "Benefits",
-                getattr(
-                    item,
-                    "benefits",
-                    ""
-                )
+                item.sections.get("Benefits", "")
             )
         )
-              body.append(
-            self.__tags_section(item)
-        )
+                body.append(self.__tags_section(item))
 
-        body.append(
-            self.__relationships(item)
-        )
+        body.append(self.__relationships(item))
 
-        body.append(
-            self.__markdown_button(item)
-        )
+        body.append(self.__markdown_button(item))
 
         html = PageGenerator.build(
-            item.name,
-            "\n".join(body)
+            title=item.name,
+            body="\n".join(body),
+            asset_prefix="../",
         )
 
-        output_file = (
-            self.output_folder /
-            f"{item.id}.html"
-        )
+        output_file = output_folder / f"{item.id}.html"
 
         output_file.write_text(
             html,
             encoding="utf-8"
         )
 
-        print(f"Generated {output_file}")
+    def __overview_section(self, item):
 
-    def __overview_section(
-        self,
-        item,
-        item_type
-    ):
+        return f"""
+        <section class="section">
+            <h2>Overview</h2>
 
-        html = []
+            <div class="stats-grid">
 
-        html.append('<div class="domain-grid">')
+                <div class="stat-card">
+                    <strong>Type</strong>
+                    <p>{item.__class__.__name__}</p>
+                </div>
 
-        html.append(
-            ComponentGenerator.stat_card(
-                "Type",
-                item_type
-            )
-        )
+                <div class="stat-card">
+                    <strong>Category</strong>
+                    <p>{item.category}</p>
+                </div>
 
-        html.append(
-            ComponentGenerator.stat_card(
-                "Category",
-                item.category or "General"
-            )
-        )
+            </div>
 
-        html.append(
-            ComponentGenerator.stat_card(
-                "Tags",
-                len(getattr(item, "tags", []))
-            )
-        )
+        </section>
+        """
 
-        html.append("</div>")
+    def __section(self, title, content):
 
-        return PageGenerator.section(
-            "Overview",
-            "\n".join(html)
-        )
+        if not content:
+            return ""
 
-    def __section(
-        self,
-        title,
-        value
-    ):
-
-        value = value or "Not Available"
-
-        return PageGenerator.section(
+        return ComponentGenerator.section(
             title,
-            f"<p>{value}</p>"
+            f"<p>{content}</p>"
         )
-          def __tags_section(self, item):
+
+    def __tags_section(self, item):
 
         tags = getattr(item, "tags", [])
 
         if not tags:
-            return PageGenerator.section(
-                "Tags",
-                "<p>No tags available.</p>"
-            )
+            return ""
 
-        html = []
+        html = ""
 
         for tag in tags:
-            html.append(
-                f'<span class="tag">{tag}</span>'
-            )
+            html += f'<span class="tag">{tag}</span>'
 
-        return PageGenerator.section(
+        return ComponentGenerator.section(
             "Tags",
-            "\n".join(html)
+            html
         )
+            def __relationships(self, item):
 
-    def __relationships(self, item):
-
-        html = []
+        html = ""
 
         relationships = [
-            (
-                "Related Agents",
-                getattr(item, "related_agents", [])
-            ),
-            (
-                "Related Prompts",
-                getattr(item, "related_prompts", [])
-            ),
-            (
-                "Related Skills",
-                getattr(item, "related_skills", [])
-            )
+            ("Related Agents", getattr(item, "related_agents", [])),
+            ("Related Prompts", getattr(item, "related_prompts", [])),
+            ("Related Skills", getattr(item, "related_skills", [])),
         ]
 
         for title, resources in relationships:
 
-            cards = []
+            if not resources:
+                continue
 
-            if resources:
+            html += f"<h3>{title}</h3>"
+            html += '<div class="card-grid">'
 
-                for resource in resources:
-
-                    cards.append(
-                        ComponentGenerator.resource_card(
-                            title=resource.name,
-                            description=resource.description,
-                            icon="fa-solid fa-link",
-                            link=f"{resource.id}.html"
-                        )
-                    )
-
-                html.append(
-                    PageGenerator.section(
-                        title,
-                        PageGenerator.card_grid(
-                            "\n".join(cards)
-                        )
-                    )
+            for resource in resources:
+                html += ComponentGenerator.resource_card(
+                    resource,
+                    f"{resource.id}.html"
                 )
 
+            html += "</div>"
+
         if not html:
+            return ""
 
-            return PageGenerator.section(
-                "Relationships",
-                "<p>No related resources.</p>"
-            )
-
-        return "\n".join(html)
+        return ComponentGenerator.section(
+            "Related Resources",
+            html
+        )
 
     def __markdown_button(self, item):
 
         if not getattr(item, "path", None):
             return ""
 
-        return PageGenerator.section(
-            "Documentation",
-            f"""
-<a class="domain-card"
-href="../{item.path}"
-target="_blank">
+        return f"""
+        <section class="section">
+            <a class="button"
+               href="../{item.path}"
+               target="_blank">
+                Open Original Documentation
+            </a>
+        </section>
+        """
 
-Open Original Markdown
-
-</a>
-"""
-        )
-          def __slug(self, value):
-
-        if not value:
-            return "general"
+    def __slug(self, text):
 
         return (
-            value
-            .lower()
-            .replace("&", "and")
-            .replace("/", "_")
-            .replace("\\", "_")
-            .replace(" ", "_")
+            text.lower()
+                .replace(" ", "-")
+                .replace("/", "-")
         )
-      
-      

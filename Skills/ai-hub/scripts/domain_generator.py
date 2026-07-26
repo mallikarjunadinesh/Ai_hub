@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from component_generator import ComponentGenerator
+from page_generator import PageGenerator
 
 
 class DomainGenerator:
@@ -14,87 +15,57 @@ class DomainGenerator:
         self.output_folder.mkdir(parents=True, exist_ok=True)
 
         for domain in self.__get_domains():
-            self.__generate_domain_page(domain)
+            self.__generate_page(domain)
 
-    def __generate_domain_page(self, domain):
+    def __generate_page(self, domain):
 
-        html = []
+        body = []
 
-        html.append(ComponentGenerator.page_header(domain["name"]))
+        body.append(
+            ComponentGenerator.breadcrumb([
+                ("Home", "../index.html"),
+                (domain["name"], "#")
+            ])
+        )
 
-        html.append(f"""
-<section class="hero">
+        body.append(
+            PageGenerator.hero(
+                domain["name"],
+                f"Explore all AI resources available under the {domain['name']} domain."
+            )
+        )
 
-<h1>{domain['name']}</h1>
+        body.append(
+            self.__resource_section(
+                "🤖 Agents",
+                domain["agents"],
+                "fa-solid fa-robot",
+                "../details/agents"
+            )
+        )
 
-<p>
-Explore AI resources available for this domain.
-</p>
+        body.append(
+            self.__resource_section(
+                "📝 Prompts",
+                domain["prompts"],
+                "fa-solid fa-file-lines",
+                "../details/prompts"
+            )
+        )
 
-</section>
-""")
+        body.append(
+            self.__resource_section(
+                "⚙ Skills",
+                domain["skills"],
+                "fa-solid fa-screwdriver-wrench",
+                "../details/skills"
+            )
+        )
 
-        # ---------- Agents ----------
-        html.append("<section class='section'>")
-        html.append("<h2>🤖 Agents</h2>")
-
-        if domain["agents"]:
-            for agent in domain["agents"]:
-                html.append(f"""
-<div class="domain-card">
-
-<h3>{agent.name}</h3>
-
-<p>{agent.description}</p>
-
-</div>
-""")
-        else:
-            html.append("<p>No agents available.</p>")
-
-        html.append("</section>")
-
-        # ---------- Prompts ----------
-        html.append("<section class='section'>")
-        html.append("<h2>📝 Prompts</h2>")
-
-        if domain["prompts"]:
-            for prompt in domain["prompts"]:
-                html.append(f"""
-<div class="domain-card">
-
-<h3>{prompt.name}</h3>
-
-<p>{prompt.description}</p>
-
-</div>
-""")
-        else:
-            html.append("<p>No prompts available.</p>")
-
-        html.append("</section>")
-
-        # ---------- Skills ----------
-        html.append("<section class='section'>")
-        html.append("<h2>⚙ Skills</h2>")
-
-        if domain["skills"]:
-            for skill in domain["skills"]:
-                html.append(f"""
-<div class="domain-card">
-
-<h3>{skill.name}</h3>
-
-<p>{skill.description}</p>
-
-</div>
-""")
-        else:
-            html.append("<p>No skills available.</p>")
-
-        html.append("</section>")
-
-        html.append(ComponentGenerator.page_footer())
+        html = PageGenerator.build(
+            domain["name"],
+            "\n".join(body)
+        )
 
         file_name = (
             domain["name"]
@@ -106,11 +77,45 @@ Explore AI resources available for this domain.
         output_file = self.output_folder / file_name
 
         output_file.write_text(
-            "\n".join(html),
+            html,
             encoding="utf-8"
         )
 
         print(f"Generated {output_file}")
+
+    def __resource_section(
+        self,
+        title,
+        resources,
+        icon,
+        folder
+    ):
+
+        if not resources:
+            return PageGenerator.section(
+                title,
+                PageGenerator.empty_state("Nothing found.")
+            )
+
+        cards = []
+
+        for item in resources:
+
+            cards.append(
+                ComponentGenerator.resource_card(
+                    title=item.name,
+                    description=item.description,
+                    icon=icon,
+                    link=f"{folder}/{item.id}.html"
+                )
+            )
+
+        return PageGenerator.section(
+            title,
+            PageGenerator.card_grid(
+                "\n".join(cards)
+            )
+        )
 
     def __get_domains(self):
 
@@ -121,6 +126,7 @@ Explore AI resources available for this domain.
             category = category or "General"
 
             if category not in domains:
+
                 domains[category] = {
                     "name": category,
                     "agents": [],
@@ -141,5 +147,5 @@ Explore AI resources available for this domain.
 
         return sorted(
             domains.values(),
-            key=lambda x: x["name"]
+            key=lambda d: d["name"]
         )

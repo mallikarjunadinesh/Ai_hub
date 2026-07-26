@@ -142,7 +142,7 @@ class DetailsGenerator:
             "Tags",
             html
         )
-            def __relationships(self, item):
+     def __relationships(self, item):
 
         html = ""
 

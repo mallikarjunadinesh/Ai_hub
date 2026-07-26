@@ -74,7 +74,7 @@ class DetailsGenerator:
                 item.sections.get("Benefits", "")
             )
         )
-                body.append(self.__tags_section(item))
+        body.append(self.__tags_section(item))
 
         body.append(self.__relationships(item))
 

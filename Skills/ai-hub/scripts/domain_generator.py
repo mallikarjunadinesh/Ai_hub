@@ -11,70 +11,71 @@ class DomainGenerator:
         self.output_folder = Path(output_folder) / "domains"
 
     def generate(self):
+        """
+        Generate one HTML page per domain.
+        """
 
-        self.output_folder.mkdir(parents=True, exist_ok=True)
+        self.output_folder.mkdir(
+            parents=True,
+            exist_ok=True
+        )
 
-        for domain in self.__get_domains():
-            self.__generate_page(domain)
+        for domain in self.__collect_domains():
+            self.__generate_domain_page(domain)
 
-    def __generate_page(self, domain):
+    def __generate_domain_page(self, domain):
 
         body = []
 
         body.append(
-            ComponentGenerator.breadcrumb([
-                ("Home", "../index.html"),
-                (domain["name"], "#")
-            ])
+            ComponentGenerator.breadcrumb(
+                [
+                    ("Home", "../index.html"),
+                    (domain["name"], "#")
+                ]
+            )
         )
 
         body.append(
             PageGenerator.hero(
                 domain["name"],
-                f"Explore all AI resources available under the {domain['name']} domain."
+                f"Browse AI capabilities available for the {domain['name']} domain."
             )
         )
 
         body.append(
-            self.__resource_section(
-                "🤖 Agents",
-                domain["agents"],
-                "fa-solid fa-robot",
-                "../details/agents"
+            self.__build_section(
+                title="🤖 Agents",
+                resources=domain["agents"],
+                icon="fa-solid fa-robot"
             )
         )
 
         body.append(
-            self.__resource_section(
-                "📝 Prompts",
-                domain["prompts"],
-                "fa-solid fa-file-lines",
-                "../details/prompts"
+            self.__build_section(
+                title="📝 Prompts",
+                resources=domain["prompts"],
+                icon="fa-solid fa-file-lines"
             )
         )
 
         body.append(
-            self.__resource_section(
-                "⚙ Skills",
-                domain["skills"],
-                "fa-solid fa-screwdriver-wrench",
-                "../details/skills"
+            self.__build_section(
+                title="⚙ Skills",
+                resources=domain["skills"],
+                icon="fa-solid fa-screwdriver-wrench"
             )
         )
 
         html = PageGenerator.build(
-            domain["name"],
-            "\n".join(body)
+            title=domain["name"],
+            body="\n".join(body)
         )
 
-        file_name = (
-            domain["name"]
-            .lower()
-            .replace(" ", "_")
-            + ".html"
+        output_file = (
+            self.output_folder /
+            f"{domain['slug']}.html"
         )
-
-        output_file = self.output_folder / file_name
 
         output_file.write_text(
             html,
@@ -83,30 +84,32 @@ class DomainGenerator:
 
         print(f"Generated {output_file}")
 
-    def __resource_section(
+    def __build_section(
         self,
         title,
         resources,
-        icon,
-        folder
+        icon
     ):
 
         if not resources:
+
             return PageGenerator.section(
                 title,
-                PageGenerator.empty_state("Nothing found.")
+                PageGenerator.empty_state(
+                    "No resources available."
+                )
             )
 
         cards = []
 
-        for item in resources:
+        for resource in resources:
 
             cards.append(
                 ComponentGenerator.resource_card(
-                    title=item.name,
-                    description=item.description,
+                    title=resource.name,
+                    description=resource.description,
                     icon=icon,
-                    link=f"{folder}/{item.id}.html"
+                    link=f"../items/{resource.id}.html"
                 )
             )
 
@@ -117,7 +120,7 @@ class DomainGenerator:
             )
         )
 
-    def __get_domains(self):
+    def __collect_domains(self):
 
         domains = {}
 
@@ -129,6 +132,11 @@ class DomainGenerator:
 
                 domains[category] = {
                     "name": category,
+                    "slug": (
+                        category
+                        .lower()
+                        .replace(" ", "_")
+                    ),
                     "agents": [],
                     "prompts": [],
                     "skills": []
@@ -137,15 +145,19 @@ class DomainGenerator:
             return domains[category]
 
         for agent in self.repository.agents:
-            get_domain(agent.category)["agents"].append(agent)
+
+            get_domain(
+                agent.category
+            )["agents"].append(agent)
 
         for prompt in self.repository.prompts:
-            get_domain(prompt.category)["prompts"].append(prompt)
+
+            get_domain(
+                prompt.category
+            )["prompts"].append(prompt)
 
         for skill in self.repository.skills:
-            get_domain(skill.category)["skills"].append(skill)
 
-        return sorted(
-            domains.values(),
-            key=lambda d: d["name"]
-        )
+            get_domain(
+                skill.category
+            )["skills"].append(skill)

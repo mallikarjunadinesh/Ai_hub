@@ -160,4 +160,9 @@ class DomainGenerator:
 
             get_domain(
                 skill.category
-            )["skills"].append(skill)
+            )["skills"].append(skill)      
+            
+        return sorted(
+            domains.values(),
+            key=lambda domain: domain["name"].lower()
+        )

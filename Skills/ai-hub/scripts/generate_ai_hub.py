@@ -14,7 +14,6 @@ from details_generator import DetailsGenerator
 def main():
 
     base_path = Path(__file__).parent.parent
-
     output_path = base_path / "output"
 
     print("=" * 60)
@@ -25,7 +24,8 @@ def main():
 
     parser = RepositoryParser(base_path)
 
-    repository = parser.parse()
+    # RepositoryParser exposes scan(), not parse()
+    repository = parser.scan()
 
     print(
         f"Found "
@@ -35,11 +35,9 @@ def main():
     )
 
     print("\nBuilding relationships...")
-
     RelationshipBuilder(repository).build()
 
     print("\nGenerating JSON...")
-
     JsonGenerator(
         repository,
         output_path
@@ -67,12 +65,11 @@ def main():
         output_path
     ).generate()
 
-    print("\nDone!")
-
-    print(
-        f"\nOpen:\n"
-        f"{output_path / 'index.html'}"
-    )
+    print("\n" + "=" * 60)
+    print("AI HUB generation completed successfully!")
+    print("=" * 60)
+    print(f"\nOutput folder: {output_path}")
+    print(f"Open: {output_path / 'index.html'}")
 
 
 if __name__ == "__main__":

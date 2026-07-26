@@ -1,0 +1,303 @@
+/* ===========================
+   AI HUB Design System
+=========================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+
+    font-family: "Segoe UI", Arial, sans-serif;
+
+    background: #f5f7fa;
+
+    color: #2d3436;
+}
+
+/* ===========================
+   Header
+=========================== */
+
+.top-header {
+
+    background: #d71920;
+
+    color: white;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 18px 40px;
+
+    box-shadow: 0 3px 8px rgba(0,0,0,.15);
+}
+
+.logo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 24px;
+
+    font-weight: bold;
+}
+
+.logo i{
+
+    font-size:28px;
+}
+
+.top-header a{
+
+    color:white;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    margin-left:25px;
+}
+
+/* ===========================
+   Hero
+=========================== */
+
+.hero{
+
+    text-align:center;
+
+    padding:60px 20px;
+}
+
+.hero h1{
+
+    font-size:42px;
+
+    margin-bottom:15px;
+}
+
+.hero p{
+
+    color:#666;
+
+    font-size:18px;
+}
+
+/* ===========================
+   Search
+=========================== */
+
+.search-container{
+
+    width:60%;
+
+    margin:30px auto;
+}
+
+.search-container input{
+
+    width:100%;
+
+    padding:16px 20px;
+
+    border-radius:12px;
+
+    border:1px solid #ddd;
+
+    font-size:16px;
+
+    outline:none;
+
+    transition:.3s;
+}
+
+.search-container input:focus{
+
+    border-color:#d71920;
+
+    box-shadow:0 0 10px rgba(215,25,32,.25);
+}
+
+/* ===========================
+   Sections
+=========================== */
+
+.section{
+
+    width:90%;
+
+    margin:auto;
+
+    margin-bottom:50px;
+}
+
+.section h2{
+
+    margin-bottom:25px;
+
+    color:#d71920;
+}
+
+/* ===========================
+   Domain Grid
+=========================== */
+
+.domain-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+
+    gap:25px;
+}
+
+/* ===========================
+   Domain Card
+=========================== */
+
+.domain-card{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:25px;
+
+    text-decoration:none;
+
+    color:#2d3436;
+
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+
+    transition:.3s;
+}
+
+.domain-card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:0 15px 30px rgba(0,0,0,.15);
+
+    border-left:6px solid #d71920;
+}
+
+.domain-card h2{
+
+    margin-bottom:20px;
+
+    color:#d71920;
+}
+
+.domain-stats{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+}
+
+.domain-stats div{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+}
+
+.domain-stats i{
+
+    color:#d71920;
+}
+
+/* ===========================
+   Stat Cards
+=========================== */
+
+.stat-card{
+
+    background:white;
+
+    border-radius:14px;
+
+    padding:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+    text-align:center;
+}
+
+.stat-card h3{
+
+    color:#666;
+
+    margin-bottom:10px;
+}
+
+.stat-card p{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    color:#d71920;
+}
+
+/* ===========================
+   Footer
+=========================== */
+
+.footer{
+
+    margin-top:60px;
+
+    background:#222;
+
+    color:white;
+
+    text-align:center;
+
+    padding:20px;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media(max-width:768px){
+
+.top-header{
+
+flex-direction:column;
+
+gap:15px;
+
+padding:20px;
+}
+
+.search-container{
+
+width:90%;
+}
+
+.hero h1{
+
+font-size:30px;
+}
+
+.domain-grid{
+
+grid-template-columns:1fr;
+}
+
+}

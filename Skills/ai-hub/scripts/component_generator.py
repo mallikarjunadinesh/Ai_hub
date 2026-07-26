@@ -16,7 +16,7 @@ class ComponentGenerator:
 
 <title>{escape(title)}</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/style.css">
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -27,19 +27,19 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <header class="top-header">
 
-    <div class="logo">
+<div class="logo">
 
-        <i class="fa-solid fa-robot"></i>
+<i class="fa-solid fa-robot"></i>
 
-        <span>AI HUB</span>
+<span>AI HUB</span>
 
-    </div>
+</div>
 
-    <nav>
+<nav>
 
-        <a href="index.html">Home</a>
+<a href="../index.html">Home</a>
 
-    </nav>
+</nav>
 
 </header>
 
@@ -53,7 +53,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <footer class="footer">
 
-    AI HUB © 2026
+AI HUB © 2026
 
 </footer>
 
@@ -64,60 +64,84 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
     @staticmethod
     def search_bar():
-
         return """
 <div class="search-container">
 
-    <input
-        id="globalSearch"
-        type="text"
-        placeholder="Search Agents, Prompts, Skills...">
+<input
+id="globalSearch"
+type="text"
+placeholder="Search Agents, Prompts and Skills...">
 
 </div>
 """
 
     @staticmethod
-    def domain_card(name,
-                    agents,
-                    prompts,
-                    skills,
-                    link):
+    def domain_card(name, agents, prompts, skills, link):
 
         return f"""
 <a class="domain-card" href="{escape(link)}">
 
-    <h2>{escape(name)}</h2>
+<h2>{escape(name)}</h2>
 
-    <div class="domain-stats">
+<div class="domain-stats">
 
-        <div>
+<div>
+<i class="fa-solid fa-robot"></i>
+<span>{agents} Agents</span>
+</div>
 
-            <i class="fa-solid fa-robot"></i>
+<div>
+<i class="fa-solid fa-file-lines"></i>
+<span>{prompts} Prompts</span>
+</div>
 
-            <span>{agents} Agents</span>
+<div>
+<i class="fa-solid fa-screwdriver-wrench"></i>
+<span>{skills} Skills</span>
+</div>
 
-        </div>
-
-        <div>
-
-            <i class="fa-solid fa-file-lines"></i>
-
-            <span>{prompts} Prompts</span>
-
-        </div>
-
-        <div>
-
-            <i class="fa-solid fa-screwdriver-wrench"></i>
-
-            <span>{skills} Skills</span>
-
-        </div>
-
-    </div>
+</div>
 
 </a>
 """
+
+    @staticmethod
+    def resource_card(title, description, icon, link):
+
+        return f"""
+<a class="domain-card" href="{escape(link)}">
+
+<h3>
+
+<i class="{icon}"></i>
+
+{escape(title)}
+
+</h3>
+
+<p>
+
+{escape(description or "No description available.")}
+
+</p>
+
+</a>
+"""
+
+    @staticmethod
+    def breadcrumb(items):
+
+        html = ['<div class="breadcrumb">']
+
+        for text, link in items:
+
+            html.append(
+                f'<a href="{escape(link)}">{escape(text)}</a>'
+            )
+
+        html.append("</div>")
+
+        return "\n".join(html)
 
     @staticmethod
     def section(title, body):

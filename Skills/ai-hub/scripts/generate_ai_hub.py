@@ -1,6 +1,7 @@
 from parser import RepositoryParser
 from relationship_builder import RelationshipBuilder
 from json_generator import JsonGenerator
+from search import SearchIndexGenerator
 
 
 def print_summary(repository):
@@ -18,7 +19,7 @@ def print_summary(repository):
 
 def main():
 
-    print("Scanning repository...\n")
+    print("Starting AI HUB generation...\n")
 
     parser = RepositoryParser("../../..")
 
@@ -27,6 +28,11 @@ def main():
     RelationshipBuilder(repository).build()
 
     JsonGenerator(
+        repository,
+        "../output"
+    ).generate()
+
+    SearchIndexGenerator(
         repository,
         "../output"
     ).generate()

@@ -1,45 +1,78 @@
+from pathlib import Path
+
 from parser import RepositoryParser
 from relationship_builder import RelationshipBuilder
+
 from json_generator import JsonGenerator
-from search import SearchIndexGenerator
+from search import SearchGenerator
 
-
-def print_summary(repository):
-
-    print("\n" + "=" * 60)
-    print("AI HUB Repository Scan Summary")
-    print("=" * 60)
-
-    print(f"Agents  : {len(repository.agents)}")
-    print(f"Prompts : {len(repository.prompts)}")
-    print(f"Skills  : {len(repository.skills)}")
-
-    print("=" * 60)
+from home_generator import HomeGenerator
+from domain_generator import DomainGenerator
+from details_generator import DetailsGenerator
 
 
 def main():
 
-    print("Starting AI HUB generation...\n")
+    base_path = Path(__file__).parent.parent
 
-    parser = RepositoryParser("../../..")
+    output_path = base_path / "output"
 
-    repository = parser.scan()
+    print("=" * 60)
+    print("AI HUB Generator")
+    print("=" * 60)
+
+    print("\nScanning repository...")
+
+    parser = RepositoryParser(base_path)
+
+    repository = parser.parse()
+
+    print(
+        f"Found "
+        f"{len(repository.agents)} Agents, "
+        f"{len(repository.prompts)} Prompts, "
+        f"{len(repository.skills)} Skills"
+    )
+
+    print("\nBuilding relationships...")
 
     RelationshipBuilder(repository).build()
 
+    print("\nGenerating JSON...")
+
     JsonGenerator(
         repository,
-        "../output"
+        output_path
     ).generate()
 
-    SearchIndexGenerator(
+    SearchGenerator(
         repository,
-        "../output"
+        output_path
     ).generate()
 
-    print_summary(repository)
+    print("\nGenerating HTML...")
 
-    print("\nAI HUB generation completed successfully.")
+    HomeGenerator(
+        repository,
+        output_path
+    ).generate()
+
+    DomainGenerator(
+        repository,
+        output_path
+    ).generate()
+
+    DetailsGenerator(
+        repository,
+        output_path
+    ).generate()
+
+    print("\nDone!")
+
+    print(
+        f"\nOpen:\n"
+        f"{output_path / 'index.html'}"
+    )
 
 
 if __name__ == "__main__":
